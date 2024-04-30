@@ -1,37 +1,73 @@
 // Libraries
-import {useContext, useLayoutEffect} from 'react';
-import {View, StyleSheet, TouchableOpacity, Alert, Text} from 'react-native';
-import Icon from 'react-native-vector-icons/Ionicons';
+import { useContext, useLayoutEffect } from "react";
+import { View, StyleSheet, TouchableOpacity, Alert, Text } from "react-native";
+import Icon from "react-native-vector-icons/Ionicons";
 
 // Constants
-import COLORS from '../constants/colors';
+import COLORS from "../constants/colors";
+import ROUTES from "../constants/routes";
 
 // Components
-import CartList from '../components/cart/CartList';
-import Header from '../components/reusable/Header';
+import CartList from "../components/cart/CartList";
+import Header from "../components/reusable/Header";
+import Button from "../components/reusable/Button";
+import Summary from "../components/reusable/Summary";
 
 // App-Wide State Management
-import {CartContext} from '../store/cart-context';
+import { CartContext } from "../store/cart-context";
 
-const CartScreen = ({navigation}) => {
+const CartScreen = ({ navigation }) => {
   const cartContext = useContext(CartContext);
+
+  useLayoutEffect(() => {
+    navigation.setOptions({
+      headerTitle: "",
+      headerShadowVisible: false,
+      headerStyle: {
+        backgroundColor: COLORS.primary200,
+      },
+      headerLeft: () => (
+        <Icon
+          name="arrow-back"
+          color={COLORS.gray700}
+          size={22}
+          onPress={() => navigation.goBack()}
+        />
+      ),
+      headerRight: () => (
+        <TouchableOpacity
+          onPress={handleTrashPress}
+          disabled={cartContext.products.length === 0}
+        >
+          <View
+            style={{
+              marginHorizontal: 16,
+              opacity: cartContext.products.length === 0 ? 0.5 : 1,
+            }}
+          >
+            <Icon name="trash" color={COLORS.gray500} size={22} />
+          </View>
+        </TouchableOpacity>
+      ),
+    });
+  }, [navigation, cartContext.products.length]);
 
   const handleTrashPress = () => {
     Alert.alert(
-      'Clear Cart',
-      'Are you sure you want to clear your cart?',
+      "Clear Cart",
+      "Are you sure you want to clear your cart?",
       [
         {
-          text: 'Cancel',
-          style: 'cancel',
+          text: "Cancel",
+          style: "cancel",
         },
         {
-          text: 'Clear',
+          text: "Clear",
           onPress: clearCartHandler,
-          style: 'destructive',
+          style: "destructive",
         },
       ],
-      {cancelable: true},
+      { cancelable: true }
     );
   };
 
@@ -39,23 +75,18 @@ const CartScreen = ({navigation}) => {
     cartContext.clearCart();
   };
 
-  useLayoutEffect(() => {
-    navigation.setOptions({
-      headerRight: () => (
-        <TouchableOpacity
-          onPress={handleTrashPress}
-          disabled={cartContext.products.length === 0}>
-          <View
-            style={{
-              marginHorizontal: 16,
-              opacity: cartContext.products.length === 0 ? 0.5 : 1,
-            }}>
-            <Icon name="trash" color={COLORS.gray500} size={22} />
-          </View>
-        </TouchableOpacity>
-      ),
-    });
-  }, [navigation, cartContext.products.length]);
+  const checkoutHandler = () => {
+    navigation.navigate(ROUTES.WEBVIEW, { url: "http://localhost:3000/" });
+  };
+
+  const checkoutButton = (
+    <Button
+      title={"Check Out"}
+      icon={"log-out-outline"}
+      type={"primary"}
+      onPress={checkoutHandler}
+    />
+  );
 
   let content = (
     <View style={styles.emptyContainer}>
@@ -65,10 +96,20 @@ const CartScreen = ({navigation}) => {
 
   const cartProducts = cartContext.products;
 
+  const cartValue = () => {
+    let totalCartValue = 0;
+    cartProducts.forEach((product) => {
+      const subtotal = product.price * product.quantity;
+      totalCartValue += subtotal;
+    });
+    return totalCartValue;
+  };
+
   if (cartProducts.length > 0) {
     content = (
       <View style={styles.container}>
         <CartList products={cartProducts} cardStyle={styles.card} />
+        <Summary price={cartValue()} button={checkoutButton} />
       </View>
     );
   }
@@ -97,13 +138,13 @@ const styles = StyleSheet.create({
   },
   emptyContainer: {
     flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
+    justifyContent: "center",
+    alignItems: "center",
     marginBottom: 36,
   },
   emptyText: {
     fontSize: 18,
     color: COLORS.gray700,
-    fontWeight: 'bold',
+    fontWeight: "bold",
   },
 });

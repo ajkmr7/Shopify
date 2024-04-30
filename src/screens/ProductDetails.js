@@ -1,38 +1,41 @@
 // Libraries
-import {View, Text, StyleSheet} from 'react-native';
-import {useContext, useEffect, useState, useLayoutEffect} from 'react';
-import Icon from 'react-native-vector-icons/Ionicons';
+import { View, Text, StyleSheet } from "react-native";
+import { useContext, useEffect, useState, useLayoutEffect } from "react";
+import Icon from "react-native-vector-icons/Ionicons";
 
 // Constants
-import COLORS from '../constants/colors';
-import backdropColors from '../constants/backdrop-colors';
+import COLORS from "../constants/colors";
+import backdropColors from "../constants/backdrop-colors";
 
 // Components
-import Summary from '../components/reusable/Summary';
-import Button from '../components/reusable/Button';
-import IconButton from '../components/reusable/IconButton';
+import Summary from "../components/reusable/Summary";
+import Button from "../components/reusable/Button";
+import IconButton from "../components/reusable/IconButton";
 
 // Screens
-import ProductPreview from '../components/product_details/ProductPreview';
-import DetailsPreview from '../components/product_details/DetailsPreview';
+import ProductPreview from "../components/product_details/ProductPreview";
+import DetailsPreview from "../components/product_details/DetailsPreview";
 
 // App-wide State Management
-import {CartContext} from '../store/cart-context';
+import { CartContext } from "../store/cart-context";
+import { WishlistContext } from "../store/wishlist-context";
 
-const ProductDetails = ({route, navigation}) => {
+const ProductDetails = ({ route, navigation }) => {
   const product = route.params.product;
   const cartContext = useContext(CartContext);
+  const wishlistContext = useContext(WishlistContext);
 
   const productIndex = cartContext.products.findIndex(
-    prod => prod.id === product.id,
+    (prod) => prod.id === product.id
   );
+  const isWishlisted = wishlistContext.products.includes(product);
 
   const [isProductInCart, setIsProductInCart] = useState(productIndex !== -1);
 
   useLayoutEffect(() =>
     navigation.setOptions(
       {
-        headerTitle: '',
+        headerTitle: "",
         headerShadowVisible: false,
         headerLeft: () => (
           <Icon
@@ -44,15 +47,15 @@ const ProductDetails = ({route, navigation}) => {
         ),
         headerRight: () => (
           <Icon
-            name="heart-outline"
-            color={'red'}
+            name={isWishlisted ? "heart" : "heart-outline"}
+            color={"red"}
             size={22}
-            onPress={() => navigation.goBack()}
+            onPress={toggleWishlistStatusHandler}
           />
         ),
       },
-      [navigation],
-    ),
+      [navigation]
+    )
   );
 
   useEffect(() => {
@@ -67,6 +70,12 @@ const ProductDetails = ({route, navigation}) => {
     cartContext.removeFromCart(product);
   };
 
+  const toggleWishlistStatusHandler = () => {
+    isWishlisted
+      ? wishlistContext.removeFromWishlist(product)
+      : wishlistContext.addToWishlist(product);
+  };
+
   const quantity =
     isProductInCart && productIndex !== -1
       ? cartContext.products[productIndex].quantity
@@ -75,14 +84,14 @@ const ProductDetails = ({route, navigation}) => {
   const addToCartButton = isProductInCart ? (
     <View style={styles.buttonContainer}>
       <IconButton
-        name={'remove'}
+        name={"remove"}
         size={30}
         color={COLORS.primary100}
         onPress={removeFromCartHandler}
       />
       <Text style={styles.quantityText}>{quantity}</Text>
       <IconButton
-        name={'add'}
+        name={"add"}
         size={30}
         color={COLORS.accent500}
         onPress={addToCartHandler}
@@ -90,9 +99,9 @@ const ProductDetails = ({route, navigation}) => {
     </View>
   ) : (
     <Button
-      title={'Add To Cart'}
-      icon={'cart'}
-      type={'secondary'}
+      title={"Add To Cart"}
+      icon={"cart"}
+      type={"secondary"}
       onPress={addToCartHandler}
     />
   );
@@ -124,7 +133,7 @@ const styles = StyleSheet.create({
     backgroundColor: COLORS.primary100,
   },
   buttonContainer: {
-    flexDirection: 'row',
+    flexDirection: "row",
   },
   quantityText: {
     marginHorizontal: 8,

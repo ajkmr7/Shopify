@@ -1,7 +1,9 @@
 export default {
-  HOME: 'Home',
-  WISHLIST: 'Wishlist',
-  CART: 'Cart',
-  BOTTOM_TABS: 'BottomTabs',
-  PRODUCT_DETAILS: 'ProductDetails',
+  HOME: "Home",
+  WISHLIST: "Wishlist",
+  CART: "Cart",
+  PRODUCT_DETAILS: "ProductDetails",
+  BOTTOM_TABS: "BottomTabs",
+  DRAWER: "Drawer",
+  WEBVIEW: "Webview",
 };

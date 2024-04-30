@@ -9,6 +9,8 @@ import ROUTES from "../constants/routes";
 
 // Screens
 import ProductDetails from "../screens/ProductDetails";
+import CartScreen from "../screens/CartScreen";
+import WebViewScreen from "../screens/WebViewScreen";
 
 const Stack = createNativeStackNavigator();
 
@@ -20,6 +22,8 @@ const StackNavigator = () => (
       options={{ headerShown: false }}
     />
     <Stack.Screen name={ROUTES.PRODUCT_DETAILS} component={ProductDetails} />
+    <Stack.Screen name={ROUTES.CART} component={CartScreen} />
+    <Stack.Screen name={ROUTES.WEBVIEW} component={WebViewScreen} />
   </Stack.Navigator>
 );
 
